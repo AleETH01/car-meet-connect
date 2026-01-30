@@ -5,17 +5,22 @@ import L from 'leaflet';
 import { Meet, MeetCategory } from '../types';
 import { CATEGORY_ICONS } from '../constants';
 
+import NavigationMap from './NavigationMap';
+
 interface MapViewProps {
   meets: Meet[];
   onMarkerClick: (meet: Meet) => void;
   center: [number, number];
+  isNavigating?: boolean;
+  destination?: [number, number] | null;
+  onExitNavigation?: () => void;
 }
 
 // Custom Marker Creator
 const createCustomIcon = (category: MeetCategory, isPrivate: boolean, currentVehicles: number) => {
   const emoji = CATEGORY_ICONS[category] || '📍';
   const color = isPrivate ? '#ff0055' : '#47f425'; // Updated to Neon Green
-  
+
   return L.divIcon({
     html: `
       <div class="relative flex items-center justify-center">
@@ -53,12 +58,39 @@ const MapResizer = () => {
   return null;
 };
 
-const MapView: React.FC<MapViewProps> = ({ meets, onMarkerClick, center }) => {
+const MapView: React.FC<MapViewProps> = ({
+  meets,
+  onMarkerClick,
+  center,
+  isNavigating = false,
+  destination,
+  onExitNavigation
+}) => {
+
+  if (isNavigating && destination) {
+    return (
+      <div className="w-full h-full relative animate-fade-in">
+        <NavigationMap
+          userLocation={center}
+          destination={destination}
+          isNavigating={isNavigating}
+          onArrive={onExitNavigation}
+        />
+        <button
+          onClick={onExitNavigation}
+          className="absolute top-4 left-4 z-[1100] bg-black/50 backdrop-blur text-white p-2 rounded-full border border-white/20"
+        >
+          <span className="material-symbols-outlined">close</span>
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="w-full h-full bg-[#0a0f0a] animate-fade-in">
-      <MapContainer 
-        center={center} 
-        zoom={13} 
+      <MapContainer
+        center={center}
+        zoom={13}
         scrollWheelZoom={true}
         className="w-full h-full"
         zoomControl={false}
@@ -86,8 +118,9 @@ const MapView: React.FC<MapViewProps> = ({ meets, onMarkerClick, center }) => {
           </Marker>
         ))}
       </MapContainer>
-      
-      <style dangerouslySetInnerHTML={{ __html: `
+
+      <style dangerouslySetInnerHTML={{
+        __html: `
         .custom-popup .leaflet-popup-content-wrapper {
           background: #161b16 !important;
           color: white !important;
