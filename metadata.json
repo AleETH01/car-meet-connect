@@ -1,0 +1,8 @@
+
+{
+  "name": "CarMeet Pro - Punto de Encuentro",
+  "description": "Una plataforma avanzada para entusiastas del motor para descubrir, crear y gestionar encuentros de coches en tiempo real con reglas de negocio estrictas y navegación guiada.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}

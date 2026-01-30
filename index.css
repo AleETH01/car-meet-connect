@@ -1,0 +1,27 @@
+:root {
+  font-family: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
+}
+
+/* Container for the specific mobile dimensions requested */
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #121212; /* Dark framing background */
+  margin: 0;
+  overflow: hidden; /* Prevent body scroll, handle in #root */
+}
+
+#root {
+  width: 100%;
+  max-width: 430px; /* iPhone 15/16 Pro Max width approx */
+  height: 100vh; /* Full viewport height relative to phone container */
+  background-color: #0a0a0a;
+  position: relative;
+  overflow-y: auto; /* Scroll inside the app */
+  overflow-x: hidden;
+  box-shadow: 0 0 50px rgba(0,0,0,0.5); /* Nice shadow to emphasize the device frame */
+  border-left: 1px solid #333;
+  border-right: 1px solid #333;
+}
