@@ -1,4 +1,4 @@
-const CACHE_NAME = 'carmeet-connect-v1';
+const CACHE_NAME = 'carmeet-connect-v2';
 const URLS_TO_CACHE = [
     '/',
     '/index.html',

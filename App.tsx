@@ -84,7 +84,7 @@ const App: React.FC = () => {
 
     const handleError = (err: GeolocationPositionError) => {
       console.warn(`ERROR(${err.code}): ${err.message}`);
-      // Fallback or user notification logic could go here
+      alert(`Error de GPS: ${err.message}. Asegúrate de activar la ubicación.`);
     };
 
     const options = {
@@ -189,9 +189,13 @@ const App: React.FC = () => {
                   className="bg-transparent border-none outline-none text-sm ml-2 text-white w-full"
                 />
               </div>
-              <button className="w-12 h-12 bg-zinc-900/90 border border-zinc-700/50 rounded-full flex items-center justify-center backdrop-blur-md">
-                <svg className="text-[#47f425]" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18" /><path d="M7 12h10" /><path d="M10 18h4" /></svg>
-              </button>
+
+              {/* GPS Status Indicator */}
+              <div className={`w-12 h-12 rounded-full flex items-center justify-center backdrop-blur-md border border-zinc-700/50 ${userLocation[0] !== -34.6037 ? 'bg-[#47f425]/20 text-[#47f425]' : 'bg-red-500/20 text-red-500'} transition-colors`}>
+                <span className="material-symbols-outlined text-lg">
+                  {userLocation[0] !== -34.6037 ? 'my_location' : 'location_disabled'}
+                </span>
+              </div>
             </div>
           </div>
 
