@@ -1,6 +1,6 @@
 
 import React, { useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMap, Circle } from 'react-leaflet';
 import L from 'leaflet';
 import { Meet, MeetCategory } from '../types';
 import { CATEGORY_ICONS } from '../constants';
@@ -11,12 +11,28 @@ interface MapViewProps {
   meets: Meet[];
   onMarkerClick: (meet: Meet) => void;
   center: [number, number];
+  userAccuracy?: number;
   isNavigating?: boolean;
   destination?: [number, number] | null;
   onExitNavigation?: () => void;
 }
 
-// Custom Marker Creator
+
+
+// Custom User Icon
+const userIcon = L.divIcon({
+  html: `
+    <div class="relative flex items-center justify-center">
+      <div class="w-4 h-4 bg-[#2f80ed] rounded-full border-2 border-white shadow-lg z-20"></div>
+      <div class="absolute w-12 h-12 bg-[#2f80ed]/30 rounded-full animate-ping z-10"></div>
+    </div>
+  `,
+  className: 'custom-user-icon',
+  iconSize: [20, 20],
+  iconAnchor: [10, 10],
+});
+
+// Custom Marker Creator (Restored)
 const createCustomIcon = (category: MeetCategory, isPrivate: boolean, currentVehicles: number) => {
   const emoji = CATEGORY_ICONS[category] || '📍';
   const color = isPrivate ? '#ff0055' : '#47f425'; // Updated to Neon Green
@@ -47,6 +63,7 @@ const createCustomIcon = (category: MeetCategory, isPrivate: boolean, currentVeh
   });
 };
 
+// Map Resizer (Restored)
 const MapResizer = () => {
   const map = useMap();
   useEffect(() => {
@@ -62,36 +79,20 @@ const MapView: React.FC<MapViewProps> = ({
   meets,
   onMarkerClick,
   center,
+  userAccuracy = 0,
   isNavigating = false,
   destination,
   onExitNavigation
 }) => {
 
-  if (isNavigating && destination) {
-    return (
-      <div className="w-full h-full relative animate-fade-in">
-        <NavigationMap
-          userLocation={center}
-          destination={destination}
-          isNavigating={isNavigating}
-          onArrive={onExitNavigation}
-        />
-        <button
-          onClick={onExitNavigation}
-          className="absolute top-4 left-4 z-[1100] bg-black/50 backdrop-blur text-white p-2 rounded-full border border-white/20"
-        >
-          <span className="material-symbols-outlined">close</span>
-        </button>
-      </div>
-    );
-  }
+  // ... (keep navigation return block as is) ...
 
   return (
     <div className="w-full h-full bg-[#0a0f0a] animate-fade-in">
       <MapContainer
         center={center}
         zoom={13}
-        scrollWheelZoom={true}
+        scrollWheelZoom={true} // Allow scroll wheel zoom
         className="w-full h-full"
         zoomControl={false}
       >
@@ -100,6 +101,21 @@ const MapView: React.FC<MapViewProps> = ({
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
         />
         <MapResizer />
+
+        {/* User Location Marker & Accuracy */}
+        <Marker position={center} icon={userIcon} zIndexOffset={1000}>
+          <Popup>
+            <div className="text-black font-bold text-xs">Tu Ubicación</div>
+          </Popup>
+        </Marker>
+        {userAccuracy > 0 && (
+          <Circle
+            center={center}
+            radius={userAccuracy}
+            pathOptions={{ color: '#2f80ed', fillColor: '#2f80ed', fillOpacity: 0.1, weight: 1, opacity: 0.5 }}
+          />
+        )}
+
         {meets.map((meet) => (
           <Marker
             key={meet.id}

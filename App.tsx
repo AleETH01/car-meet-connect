@@ -67,13 +67,35 @@ const App: React.FC = () => {
   }, []);
 
   // Geolocation effect
+  const [gpsAccuracy, setGpsAccuracy] = useState<number>(0);
+
+  // Geolocation effect with watchPosition
   useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => setUserLocation([pos.coords.latitude, pos.coords.longitude]),
-        () => console.warn('Usando ubicación por defecto')
-      );
+    if (!navigator.geolocation) {
+      console.error('Geolocation is not supported by this browser.');
+      return;
     }
+
+    const handleSuccess = (pos: GeolocationPosition) => {
+      const { latitude, longitude, accuracy } = pos.coords;
+      setUserLocation([latitude, longitude]);
+      setGpsAccuracy(accuracy);
+    };
+
+    const handleError = (err: GeolocationPositionError) => {
+      console.warn(`ERROR(${err.code}): ${err.message}`);
+      // Fallback or user notification logic could go here
+    };
+
+    const options = {
+      enableHighAccuracy: true,
+      maximumAge: 0,
+      timeout: 10000,
+    };
+
+    const watchId = navigator.geolocation.watchPosition(handleSuccess, handleError, options);
+
+    return () => navigator.geolocation.clearWatch(watchId);
   }, []);
 
   const handleLogin = (role: UserRole) => {
@@ -176,6 +198,7 @@ const App: React.FC = () => {
           <MapView
             meets={filteredMeets}
             center={userLocation}
+            userAccuracy={gpsAccuracy}
             onMarkerClick={setSelectedMeet}
             isNavigating={isNavigating}
             destination={navigationDestination}
